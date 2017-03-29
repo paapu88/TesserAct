@@ -1,0 +1,19 @@
+tesseract fin9.Plate.exp0.png fin9.Plate.exp0 nobatch box.train
+
+unicharset_extractor fin9.Plate.exp0.box
+
+echo "ocrb 0 0 1 0 0" > font_properties
+
+shapeclustering -F font_properties -U unicharset fin9.Plate.exp0.tr
+
+mftraining -F font_properties -U unicharset -O fin9.unicharset fin9.Plate.exp0.tr
+
+cntraining fin9.Plate.exp0.tr
+
+mv inttemp fin9.inttemp ; mv normproto fin9.normproto ; mv pffmtable fin9.pffmtable ; mv shapetable fin9.shapetable
+
+combine_tessdata fin9.
+
+~/PycharmProjects/TesserAct> sudo cp fin9.traineddata /usr/local/share/tessdata/
+
+tesseract tzz-957.tiff stdout -l fin9 --psm 7
