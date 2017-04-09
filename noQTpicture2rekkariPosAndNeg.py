@@ -119,7 +119,7 @@ class MoveRectangle():
         newdir = dir + '/'+ subdir
         if not os.path.exists(newdir):
             os.makedirs(newdir)
-        return newdir+'/'+'sample_'+name
+        return newdir+'/'+name
 
     def savePositiveImage(self, image, initBasename='positive-'):
         """save area that is defined by user"""
@@ -129,17 +129,14 @@ class MoveRectangle():
         clone = image.copy()
         # all samples will get individual filename
         for i in range(999):
-            basename = initBasename + str(i)
-            if not(os.path.isfile(basename+'.tif')):
+            basename = initBasename + str(i) + '.tif'
+            if not(os.path.isfile(basename)):
                 break
         fullname = self.getNewName(oldname=basename, subdir='output')
         refPts = self.mouse.get_refPts()
         positive_area = clone[refPts[0][1]:refPts[1][1], refPts[0][0]:refPts[1][0]]
-        with open(fullname, 'w') as f:
-            f.write(positive_area)
-
-#    def saveRandomImages
-
+        print("SAVING IMAGE: ", fullname)
+        cv2.imwrite(fullname, positive_area)
 
 
     def showDialog(self):
@@ -267,7 +264,7 @@ class MoveRectangle():
                     if key == ord("*"):  # if star key was pressed
                         self.mouse.resetToPrevious()
                         break
-                    self.savePositiveImage(gray.copy())
+                    self.savePositiveImage(gray.copy(), initBasename=fname+'-positive-')
                     self.mouse.set_oldPts()
                     #self.mouse.reset()
 
