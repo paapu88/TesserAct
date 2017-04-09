@@ -79,7 +79,7 @@ class MouseRectangle():
 
 
 
-class Example():
+class MoveRectangle():
 
 
 
@@ -95,8 +95,8 @@ class Example():
             ypixel = int(sys.argv[3])
         except:
             print("setting default values for pixels")
-            xpixel = 40
-            ypixel = 10
+            xpixel = 80
+            ypixel = 20
         print("INIT:", xpixel, ypixel)
 
         self.mouse = MouseRectangle(xpixel=xpixel, ypixel=ypixel)
@@ -121,70 +121,31 @@ class Example():
             os.makedirs(newdir)
         return newdir+'/'+'sample_'+name
 
-    def saveImage(self, image, ratio, fname):
+    def savePositiveImage(self, image, initBasename='positive-'):
+        """save area that is defined by user"""
         import os.path
         import time
-        intValidChars = [ord('0'), ord('1'), ord('2'),
-                         ord('3'), ord('4'), ord('5'),
-                         ord('6'), ord('7'), ord('8'),
-                         ord('9'),
-                         ord('a'), ord('b'), ord('c'),
-                         ord('d'), ord('e'), ord('f'),
-                         ord('g'), ord('h'), ord('i'),
-                         ord('j'), ord('k'), ord('l'),
-                         ord('m'), ord('n'), ord('o'),
-                         ord('p'), ord('q'), ord('r'),
-                         ord('s'), ord('t'), ord('u'),
-                         ord('v'), ord('w'), ord('x'),
-                         ord('y'), ord('z'), ord('å'),
-                         ord('ä'), ord('ö'), ord('-')]
 
-        while True:
-            print("give the letter to be saved")
-            intChar = cv2.waitKey(0)
-            clone=image.copy()
-            if intChar in intValidChars:
-
-                # all samples will get individual filename
-                for i in range(999):
-                    basename=chr(intChar)+str(i)
-                    if not(os.path.isfile(basename+'.tif')):
-                        break
-                fullname = self.getNewName(oldname=basename, subdir='output')
-                refPts = self.mouse.get_refPts()
-                letter = clone[refPts[0][1]:refPts[1][1], refPts[0][0]:refPts[1][0]]
-                flattenedImage = letter.reshape((1, letter.shape[0] * letter.shape[1]))
-                cv2.imwrite(fullname+'.tif', letter)
-                np.savetxt(fullname+'.txt', flattenedImage)
-                allname=self.getNewName(oldname='all.box', subdir='output')
-                with open(allname, 'a') as f:
-                    f.write(chr(intChar)+ \
-                            ' ' + str(refPts[0][0]) + \
-                            ' ' + str(image.shape[1]-refPts[0][1]) + \
-                            ' ' + str(refPts[1][0]) + \
-                            ' ' + str(image.shape[1]-refPts[1][1]) + \
-                            ' 0 \n')
-                print('letter '+ chr(intChar)+' was saved')
-                #font = cv2.FONT_HERSHEY_SIMPLEX
-                                
-                #cv2.rectangle(clone, tuple(refPts[-2]), tuple(refPts[-1]), (0, 0, 255), 1)
-                #cv2.putText(clone,chr(intChar),tuple(refPts[-1]),
-                #            font, 50,(0,0,255),2,cv2.LINE_AA)
-                #cv2.imshow("clone", clone)
-                #time.sleep(2)
-                #cv2.imshow("image", image)
+        clone = image.copy()
+        # all samples will get individual filename
+        for i in range(999):
+            basename = initBasename + str(i)
+            if not(os.path.isfile(basename+'.tif')):
                 break
-            else:
-                print ("sorry, not a valid character, try again")
+        fullname = self.getNewName(oldname=basename, subdir='output')
+        refPts = self.mouse.get_refPts()
+        positive_area = clone[refPts[0][1]:refPts[1][1], refPts[0][0]:refPts[1][0]]
+        with open(fullname, 'w') as f:
+            f.write(positive_area)
+
+#    def saveRandomImages
+
 
 
     def showDialog(self):
         import math
 
-        
-        #fnames =glob.glob('*jpg')
-        #fnames = fnames + glob.glob('*png')
-        #fnames = fnames + glob.glob('*tif')
+
 
         for fname in self.fnames:
                 img = cv2.imread(fname)
@@ -216,22 +177,47 @@ class Example():
                             self.mouse.reset()
                             self.mouse.set_image(image=img)
 
-                        elif key == ord("+"):
+                        elif key == ord("i"):
                             refPts = self.mouse.get_refPts()
-                            refPts[-2][0]= refPts[-2][0] - 1
                             refPts[-2][1]= refPts[-2][1] - 1
-                            refPts[-1][0] = refPts[-1][0] + 1
-                            refPts[-1][1] = refPts[-1][1] + 1
                             self.mouse.set_refPts(refPts)
                             change = True
-                        elif key == ord("-"):
+                        elif key == ord("o"):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-2][1]= refPts[-2][1] + 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+                        elif key == ord(","):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-1][1]= refPts[-1][1] + 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+                        elif key == ord("."):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-1][1]= refPts[-1][1] - 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+                        elif key == ord("h"):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-2][0] = refPts[-2][0] - 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+                        elif key == ord("j"):
                             refPts = self.mouse.get_refPts()
                             refPts[-2][0] = refPts[-2][0] + 1
-                            refPts[-2][1] = refPts[-2][1] + 1
-                            refPts[-1][0] = refPts[-1][0] - 1
-                            refPts[-1][1] = refPts[-1][1] - 1
                             self.mouse.set_refPts(refPts)
                             change = True
+                        elif key == ord("k"):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-1][0] = refPts[-1][0] - 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+                        elif key == ord("l"):
+                            refPts = self.mouse.get_refPts()
+                            refPts[-1][0] = refPts[-1][0] + 1
+                            self.mouse.set_refPts(refPts)
+                            change = True
+
                         elif key == ord("w"):
                             #up
                             refPts = self.mouse.get_refPts()
@@ -261,13 +247,13 @@ class Example():
                             self.mouse.set_refPts(refPts)
                             change = True
 
-                        # if the 'L' key is pressed, break from the loop
-                        elif key == ord("l"):
+                        # if the '7' key is pressed, break from the loop
+                        elif key == ord("7"):
                             break
-                        #print(key)
-                        if key == ord("*"):  # if star key was pressed
+
+                        # next image
+                        elif key == ord("*"):
                             break
-                        
                         if change:
                             change = False
                             img = clone.copy()
@@ -281,7 +267,7 @@ class Example():
                     if key == ord("*"):  # if star key was pressed
                         self.mouse.resetToPrevious()
                         break
-                    self.saveImage(gray.copy(), self.mouse.get_ratio(), fname)
+                    self.savePositiveImage(gray.copy())
                     self.mouse.set_oldPts()
                     #self.mouse.reset()
 
@@ -292,6 +278,6 @@ class Example():
         
 if __name__ == '__main__':
 
-    ex = Example(sys.argv)
+    ex = MoveRectangle(sys.argv)
     ex.showDialog()
 

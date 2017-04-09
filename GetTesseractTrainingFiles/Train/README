@@ -15,5 +15,7 @@ mv inttemp fin9.inttemp ; mv normproto fin9.normproto ; mv pffmtable fin9.pffmta
 combine_tessdata fin9.
 
 ~/PycharmProjects/TesserAct> sudo cp fin9.traineddata /usr/local/share/tessdata/
+or sudo cp fin9.traineddata /usr/share/tesseract-ocr/tessdata
 
 tesseract tzz-957.tiff stdout -l fin9 --psm 7
+
